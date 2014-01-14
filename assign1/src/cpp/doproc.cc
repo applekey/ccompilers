@@ -6,43 +6,83 @@ extern "C" {
 
 #include<vector>
 #include<hash_map>
+
+
+typedef struct instruction
+{
+  int index;
+  char*s;
+}instr;
+
+typedef struct controlblock
+{
+	std::vector<instr> instructions;
+	std::vector<int> pred;
+	std::vector<int> succ;
+
+}ctrbk;
+
 // data structures you should consider using are vector and hash_map from the STL
 // refer to the following link as a starting point if you are not familiar with them: 
 // http://www.sgi.com/tech/stl/Vector.html
 // http://www.sgi.com/tech/stl/hash_map.html 
-void printcfg(std::vector< std::vector<int> > *cfg)
+void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
 {
-    std::vector< std::vector<int> > cfgraph = *cfg;
+	std::vector< ctrbk > cfgraph = *cfg;
+	printf("cfg %s %d\n",procedureName,cfgraph.size());
+
    for(int i =0;i<cfgraph.size();i++)
    {
    	  printf("block %d\n",i);
-   	  for(int j =0; j<cfgraph[i].size();j++)
+   	  // print instructions
+   	  printf("\tinstrs %d ",cfgraph[i].instructions.size());
+   	  for(int j =0; j<cfgraph[i].instructions.size();j++)
    	  {
-        printf("%d \n",cfgraph[i][j]);
+        printf("%d, %s ",cfgraph[i].instructions[j].index,cfgraph[i].instructions[j].s);
    	  }
+   	  printf("\n");
+
+   	  // print successors
+   	  printf("\tsuccessors %d ",cfgraph[i].instructions.size());
+   	  for(int j =0; j<cfgraph[i].succ.size();j++)
+   	  {
+        printf("%d ",cfgraph[i].succ[j]);
+   	  }
+   	  printf("\n");
+
+   	  // print predcessors
+   	  printf("\tpredecessors %d ",cfgraph[i].instructions.size());
+   	  for(int j =0; j<cfgraph[i].pred.size();j++)
+   	  {
+        printf("%d ",cfgraph[i].pred[j]);
+   	  }
+   	  
    }
 }
 
 
 simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 {
-	printf("%s\n",proc_name);
+	
 	simple_instr *i = inlist;
 
 	// print out the entry block
-	std::vector<std::vector<int> > cfList;
+	std::vector<ctrbk> cfList;
 	int instructionIndex = 0;
 	int blockIndex = 1; 
 	// insert the first item onto the list
-	std::vector<int> startingBlock;
-	startingBlock.push_back(0);
+	ctrbk startingBlock;
+	instr newInst = {1,"starting"};
+	startingBlock.instructions.push_back(newInst);
+
+
 	cfList.push_back(startingBlock);
+	instructionIndex++;
 
 	//create the first instruction block
-	std::vector<int> newBlock;
+	ctrbk newBlock;
 	cfList.push_back(newBlock);
 	// initilize the label tab
-	//init_labeltab();
 	
 	bool nextStatementNewBlock = false;
 	while(i){
@@ -56,65 +96,90 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 			case STR_OP: 
 			case MCPY_OP: 
 			case LDC_OP: {
-				cfList[blockIndex].push_back(instructionIndex);
+				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
+				cfList[blockIndex].instructions.push_back(newInst);
 				instructionIndex ++;
+				break;
 			}
 
 			case JMP_OP: {
-				cfList[blockIndex].push_back(instructionIndex);
+				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
+				cfList[blockIndex].instructions.push_back(newInst);
 				instructionIndex ++;
 
-				std::vector<int> newBlock;
+				ctrbk newBlock;
 				cfList.push_back(newBlock);
 				blockIndex++;
-			break;
+
+				//set the previous block to the next
+				//set the current block to the previous
+				cfList[blockIndex-1].succ.push_back(blockIndex);
+				cfList[blockIndex].pred.push_back(blockIndex-1);
+
+				break;
 			}
 
 			case BTRUE_OP:  // branch if true
 			case BFALSE_OP: {
-				cfList[blockIndex].push_back(instructionIndex);
+				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
+				cfList[blockIndex].instructions.push_back(newInst);
 				instructionIndex ++;
 
-				std::vector<int> newBlock;
+				// create a new block
+				ctrbk newBlock;
 				cfList.push_back(newBlock);
 				blockIndex++;
-			break;
+
+				//set the previous block to the next
+				//set the current block to the previous
+				cfList[blockIndex-1].succ.push_back(blockIndex);
+				cfList[blockIndex].pred.push_back(blockIndex-1);
+				break;
 			}
 
 			case CALL_OP: { // call a function
-		
-			break;
+				//printf("callop\n");
+				break;
 			}
 
 			case MBR_OP: {
 				
-
-			break;
+				printf("multibr\n");
+				break;
 			}
 
 			case LABEL_OP: {
 			//fprintf(fd, "%s:\n", s->u.label.lab->name);
 			// start a new block here
-				cfList[blockIndex].push_back(instructionIndex);
+				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
+				cfList[blockIndex].instructions.push_back(newInst);
 				instructionIndex ++;
 
-				std::vector<int> newBlock;
+				ctrbk newBlock;
 				cfList.push_back(newBlock);
 				//enter_label(i->u.label,blockIndex);
 				blockIndex++;
 
-			break;
+
+				//set the previous block to the next
+				//set the current block to the previous
+				cfList[blockIndex-1].succ.push_back(blockIndex);
+				cfList[blockIndex].pred.push_back(blockIndex-1);
+				
+
+
+				break;
 			}
 
 			case RET_OP: {
 			
-			break;
+				break;
 			}
 
 			default: {
 			/* binary base instructions */
 				printf("entered the default case, shouldn't be here\n");
-			
+				break;
 			}
 		}
 
@@ -123,7 +188,7 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
     // build flow control graph 
 
     // find immediate dominators    
-	printcfg(&cfList);
+	printcfg(&cfList,proc_name);
     return inlist;
 }
 
