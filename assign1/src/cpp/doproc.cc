@@ -80,6 +80,7 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 {
 	std::vector<cLabels> labelBlock;
 	std::vector<cLabels> gotoBlock;
+	std::vector<int> endBlocks;
 
 	simple_instr *i = inlist;
 
@@ -89,17 +90,13 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 	int blockIndex = 1; 
 	// insert the first item onto the list
 	ctrbk startingBlock;
-	instr newInst = {1,"starting"};
-	startingBlock.instructions.push_back(newInst);
     startingBlock.succ.push_back(1);
 
 	cfList.push_back(startingBlock);
-	instructionIndex++;
 
 	//create the first instruction block
 	ctrbk newBlock;
 	newBlock.pred.push_back(0);
-
 
 	cfList.push_back(newBlock);
 	// initilize the label tab
@@ -247,7 +244,11 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 			}
 
 			case RET_OP: {
-			
+				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
+				cfList[blockIndex].instructions.push_back(newInst);
+				instructionIndex ++;
+
+				endBlocks.push_back(blockIndex);
 				break;
 			}
 
@@ -262,8 +263,16 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 		i = i->next;
 	}
-	// the second while loop will handel the jump instructions
-    // build flow control graph 
+
+	// finally add the end block
+	ctrbk endBlock;
+	for(int i=0;i<endBlocks.size();i++)
+	{	
+		endBlock.pred.push_back(endBlocks[i]);
+	}
+    
+	cfList.push_back(endBlock);
+	
 
     // find immediate dominators    
 	printcfg(&cfList,proc_name);
