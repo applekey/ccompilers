@@ -10,6 +10,8 @@ extern "C" {
 using namespace __gnu_cxx;
 using namespace std;
 
+// things to check, just 1 instruction/block
+
 
 typedef struct instruction
 {
@@ -31,6 +33,118 @@ typedef struct gotoLabels
 	int singleBlock;//used for labels
 	std::vector<int> blocks;
 }cLabels;
+
+typedef struct blockDominator
+{
+	int blockNumber;
+	vector<int> dominators;
+}blockDom;
+
+void printDominators(vector<blockDom> *dominators)
+{
+	
+}
+
+
+bool domSame(vector<int> * first, vector<int> * second)
+{
+	int sizeFirst = first->size();
+	int sizeSecond = second->size();
+	if(sizeFirst != sizeSecond)
+	{
+		return false;
+	}
+	else
+	{
+		for(int i =0;i<sizeFirst;i++)
+		{
+			if((*first)[i]!= (*second)[i])
+				return false;
+		}
+
+		return true;
+	}
+}
+
+vector<int> vecIntersection(vector<int> * first, vector<int> *second)
+{
+	vector<int> ret;
+	int size = first->size();
+	for(int i =0;i<size;i++)
+	{
+		int valToFind = (*first)[i];
+		std::vector<int>::iterator it;
+		it = find (second->begin(), second->end(), valToFind);
+		if(it == second->end()) // counldn't find it go to next one
+		{
+			continue;
+		}
+		else
+		{
+			//add it
+			ret.push_back(valToFind);
+		}
+
+	}
+	return ret;
+}
+
+vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
+{
+	vector<blockDom> listOfDominators;
+	// get the number of blocks
+	int numBlocks = cfg->size();
+	// initilize each dom to contain all blocks
+	blockDom entry;
+	entry.blockNumber = 0;
+	entry.dominators.push_back(0); // push back it self
+	listOfDominators.push_back(entry);
+
+	for(int i =1;i<numBlocks;i++) // everthing except the entry
+	{
+		blockDom singleBlockDom;
+		singleBlockDom.blockNumber = i;
+		for(int j =0;j<numBlocks;j++)
+		{
+			singleBlockDom.dominators.push_back(j);
+
+		}
+		listOfDominators.push_back(singleBlockDom);
+	}
+	vector<int> oldDom;
+	bool changed = true;
+	while(changed)
+	{
+		changed = false;
+		for(int i =1;i<numBlocks-1;i++)
+		{
+			oldDom = listOfDominators[i].dominators;
+			/////
+			vector<int> predecessors = (*cfg)[i].pred; // get predecessors
+			// find the union of the predecessors
+			int numUnions = predecessors.size();
+			vector<int> currentUnion = (*cfg)[0].pred;
+			for(int j=1;j<numUnions;j++)
+			{
+				// union these things
+				currentUnion = vecIntersection(&currentUnion,&(*cfg)[j].pred);
+			}
+
+			listOfDominators[i].dominators = currentUnion;
+
+			/////
+			if(!domSame(&oldDom,&currentUnion))
+			{
+				changed = true;
+			}
+
+		}
+
+	}
+	return listOfDominators;
+}
+
+
 
 // data structures you should consider using are vector and hash_map from the STL
 // refer to the following link as a starting point if you are not familiar with them: 
@@ -276,8 +390,11 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 	cfList.push_back(endBlock);
 	
 
-    // find immediate dominators    
+      
 	printcfg(&cfList,proc_name);
+
+	// find immediate dominators  
+	vector<blockDom> dom = calcDominators(&cfList);
     return inlist;
 }
 
