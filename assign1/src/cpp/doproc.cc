@@ -45,7 +45,7 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
    {
    	  printf("block %d\n",i);
    	  // print instructions
-   	  printf("\tinstrs %d ",cfgraph[i].instructions.size());
+   	  printf("\tinstrs %d: ",cfgraph[i].instructions.size());
    	  for(int j =0; j<cfgraph[i].instructions.size();j++)
    	  {
         printf("%d, %s ",cfgraph[i].instructions[j].index,cfgraph[i].instructions[j].s);
@@ -54,7 +54,7 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
 
    	  // print successors
    	  int numberSuccessors = cfgraph[i].succ.size();
-   	  printf("\tsuccessors %d ",numberSuccessors);
+   	  printf("\tsuccessors %d: ",numberSuccessors);
    	  for(int j =0; j<numberSuccessors;j++)
    	  {
         printf("%d ",cfgraph[i].succ[j]);
@@ -63,7 +63,7 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
 
    	  // print predcessors
    	  int numberPredcessors = cfgraph[i].pred.size();
-   	  printf("\tpredecessors %d ",numberPredcessors);
+   	  printf("\tpredecessors %d: ",numberPredcessors);
    	  for(int j =0; j<numberPredcessors;j++)
    	  {
         printf("%d ",cfgraph[i].pred[j]);
@@ -122,25 +122,10 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 				break;
 			}
 
-			case JMP_OP: {
-				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
-				cfList[blockIndex].instructions.push_back(newInst);
-				instructionIndex ++;
-
-				ctrbk newBlock;
-				cfList.push_back(newBlock);
-				blockIndex++;
-
-				//set the previous block to the next
-				//set the current block to the previous
-				cfList[blockIndex-1].succ.push_back(blockIndex);
-				cfList[blockIndex].pred.push_back(blockIndex-1);
-
-				break;
-			}
-
+		
 			case BTRUE_OP:  // branch if true
-			case BFALSE_OP: {
+			case BFALSE_OP: 
+			case JMP_OP:{
 				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
 				cfList[blockIndex].instructions.push_back(newInst);
 				instructionIndex ++;
@@ -150,10 +135,14 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 				cfList.push_back(newBlock);
 				blockIndex++;
 
-				//set the previous block to the next
-				//set the current block to the previous
-				cfList[blockIndex-1].succ.push_back(blockIndex);
-				cfList[blockIndex].pred.push_back(blockIndex-1);
+				if(i->opcode!= JMP_OP)
+				{
+					//set the previous block to the next
+					//set the current block to the previous
+					cfList[blockIndex-1].succ.push_back(blockIndex);
+					cfList[blockIndex].pred.push_back(blockIndex-1);
+				}
+				
 
 				// the branch jump will be handled in the next while loop
 
@@ -192,7 +181,9 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 			}
 
 			case CALL_OP: { // call a function
-				//printf("callop\n");
+				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
+				cfList[blockIndex].instructions.push_back(newInst);
+				instructionIndex ++;
 				break;
 			}
 
@@ -216,6 +207,12 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 			    	ctrbk newBlock;
 					cfList.push_back(newBlock);
 					blockIndex++;
+
+					//set the previous block to the next
+					//set the current block to the previous
+					
+					cfList[blockIndex-1].succ.push_back(blockIndex);
+					cfList[blockIndex].pred.push_back(blockIndex-1);
 			    }
 
 			
@@ -223,12 +220,6 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 				cfList[blockIndex].instructions.push_back(newInst);
 				instructionIndex ++;
 
-
-				//set the previous block to the next
-				//set the current block to the previous
-				cfList[blockIndex-1].succ.push_back(blockIndex);
-				cfList[blockIndex].pred.push_back(blockIndex-1);
-				
 				//add the label to the label vector
 				cLabels newLabel;
 
@@ -262,8 +253,9 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 			default: {
 			/* binary base instructions */
-				printf("entered the default case, shouldn't be here\n");
-				printf("%s\n",simple_op_name(i->opcode));
+				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
+				cfList[blockIndex].instructions.push_back(newInst);
+				instructionIndex ++;
 				break;
 			}
 		}
