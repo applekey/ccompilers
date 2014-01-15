@@ -53,19 +53,23 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
    	  printf("\n");
 
    	  // print successors
-   	  printf("\tsuccessors %d ",cfgraph[i].instructions.size());
-   	  for(int j =0; j<cfgraph[i].succ.size();j++)
+   	  int numberSuccessors = cfgraph[i].succ.size();
+   	  printf("\tsuccessors %d ",numberSuccessors);
+   	  for(int j =0; j<numberSuccessors;j++)
    	  {
         printf("%d ",cfgraph[i].succ[j]);
    	  }
    	  printf("\n");
 
    	  // print predcessors
-   	  printf("\tpredecessors %d ",cfgraph[i].instructions.size());
-   	  for(int j =0; j<cfgraph[i].pred.size();j++)
+   	  int numberPredcessors = cfgraph[i].pred.size();
+   	  printf("\tpredecessors %d ",numberPredcessors);
+   	  for(int j =0; j<numberPredcessors;j++)
    	  {
         printf("%d ",cfgraph[i].pred[j]);
    	  }
+   	  printf("\n");
+   	  printf("\n");
    	  
    }
 }
@@ -87,13 +91,16 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 	ctrbk startingBlock;
 	instr newInst = {1,"starting"};
 	startingBlock.instructions.push_back(newInst);
-
+    startingBlock.succ.push_back(1);
 
 	cfList.push_back(startingBlock);
 	instructionIndex++;
 
 	//create the first instruction block
 	ctrbk newBlock;
+	newBlock.pred.push_back(0);
+
+
 	cfList.push_back(newBlock);
 	// initilize the label tab
 	
@@ -198,12 +205,20 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 			case LABEL_OP: {
 			//fprintf(fd, "%s:\n", s->u.label.lab->name);
 			// start a new block here
-			    char * labelName = i->u.label.lab->name;
-				ctrbk newBlock;
-				cfList.push_back(newBlock);
-				//enter_label(i->u.label,blockIndex);
-				blockIndex++;
+				// check 
 
+			    char * labelName = i->u.label.lab->name;
+				
+			    // check if the current block has nothing, if it has nothing
+			    // the previous instruction was most likely a jump instruction
+			    if(cfList[blockIndex].instructions.size() != 0)
+			    {
+			    	ctrbk newBlock;
+					cfList.push_back(newBlock);
+					blockIndex++;
+			    }
+
+			
 				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
 				cfList[blockIndex].instructions.push_back(newInst);
 				instructionIndex ++;
@@ -248,6 +263,7 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 			default: {
 			/* binary base instructions */
 				printf("entered the default case, shouldn't be here\n");
+				printf("%s\n",simple_op_name(i->opcode));
 				break;
 			}
 		}
