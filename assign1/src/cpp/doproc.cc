@@ -48,7 +48,7 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
    	  printf("\tinstrs %d: ",cfgraph[i].instructions.size());
    	  for(int j =0; j<cfgraph[i].instructions.size();j++)
    	  {
-        printf("%d, %s ",cfgraph[i].instructions[j].index,cfgraph[i].instructions[j].s);
+        printf("%d ",cfgraph[i].instructions[j].index);
    	  }
    	  printf("\n");
 
@@ -265,9 +265,11 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 	}
 
 	// finally add the end block
+	blockIndex++;
 	ctrbk endBlock;
 	for(int i=0;i<endBlocks.size();i++)
 	{	
+		cfList[endBlocks[i]].succ.push_back(blockIndex);
 		endBlock.pred.push_back(endBlocks[i]);
 	}
     
