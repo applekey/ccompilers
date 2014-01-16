@@ -112,6 +112,45 @@ vector<int> vecUnion(int element, vector<int> * second)
 	return vecu;
 }
 
+bool vecContains(int element, std::vector<int> *list)
+{
+	std::vector<int>::iterator it;
+	it = find (list->begin(), list->end(), element);
+	if(it == list->end())
+		return true;
+	else
+		return false;
+}
+
+vector<blockDom> calcIntermediateDomiantors(vector<blockDom> * blockdoms)
+{
+   vector<blockDom> intermediateDoms = * blockdoms;
+   int domSize = intermediateDoms.size();  // remove it self from the dom list
+   for(int i =1; i<domSize ;i++ )
+   {
+     intermediateDoms[i].dominators.pop_back();
+   }
+   for(int i =1; i<domSize ;i++ )
+   {
+   	  int dSize = intermediateDoms[i].dominators.size();
+   	  for(int j = 0;j<dSize;j++)
+   	  {
+   	  	for(int k =0;k<dSize;k++)
+   	  	{
+   	  		if(k == j)
+   	  			continue;
+   	  		int t = intermediateDoms[i].dominators[k];
+   	  		if(vecContains(t,&(intermediateDoms[j].dominators)))
+   	  		{
+   	  		  intermediateDoms[i].dominators.erase(intermediateDoms[i].dominators.begin()+k);
+   	  		}
+   	  	}
+   	  }
+   }
+
+   return intermediateDoms;
+}
+
 vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
 {
 	vector<blockDom> listOfDominators;
@@ -123,7 +162,7 @@ vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
 	entry.dominators.push_back(0); // push back entry
 	listOfDominators.push_back(entry);
 
-	for(int i =1;i<numBlocks;i++) // everthing except the entry
+	for(int i =1;i<numBlocks-1;i++) // everthing except the entry and exit
 	{
 		blockDom singleBlockDom;
 		singleBlockDom.blockNumber = i;
@@ -423,6 +462,12 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 	// find immediate dominators  
 	vector<blockDom> dom = calcDominators(&cfList);
 	printDominators(&dom,proc_name);
+
+	printf("finding itnermediate doms\n");
+
+	vector<blockDom> immDoms = calcIntermediateDomiantors(&dom);
+	printDominators(&immDoms,proc_name);
+
     return inlist;
 }
 
