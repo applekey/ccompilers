@@ -147,10 +147,13 @@ vector<blockDom> calcIntermediateDomiantors(vector<blockDom> * blockdoms)
    	  {
    	  	for(int k =0;k<dSize;k++)
    	  	{
-   	  		if(k == j)
+   	  		if(k == j )
    	  			continue;
    	  		int t = intermediateDoms[i].dominators[k];
-   	  		if(vecContains(t,&(intermediateDoms[j].dominators)))
+   	  		if(t == -99)
+   	  			continue;
+
+   	  		if(vecContains(t,&(intermediateDoms[intermediateDoms[i].dominators[j]].dominators)))
    	  		{
    	  		  //intermediateDoms[i].dominators.erase(intermediateDoms[i].dominators.begin()+k-1);
    	  		  intermediateDoms[i].dominators[k] = -99;
@@ -158,6 +161,7 @@ vector<blockDom> calcIntermediateDomiantors(vector<blockDom> * blockdoms)
    	  	}
    	  }
    }
+
    // remove those 99
    // for(int i =1; i<domSize ;i++ )
    // {
@@ -483,9 +487,9 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 	// find immediate dominators  
 	vector<blockDom> dom = calcDominators(&cfList);
-	// printDominators(&dom,proc_name);
+	printDominators(&dom,proc_name);
 
-	// printf("finding itnermediate doms\n");
+	printf("finding itnermediate doms\n");
 
 	vector<blockDom> immDoms = calcIntermediateDomiantors(&dom);
 	printDominators(&immDoms,proc_name);

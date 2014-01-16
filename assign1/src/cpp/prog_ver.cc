@@ -1,5 +1,5 @@
 /* Generated automatically by the SUIF makefiles. */
 
 char *prog_ver_string = "(unnumbered test version)";
-char *prog_who_string = "compiled Thu Jan 16 03:30:30 EST 2014 by chenvin2 on ug159.eecg";
+char *prog_who_string = "compiled Thu Jan 16 04:22:41 EST 2014 by chenvin2 on ug159.eecg";
 char *prog_suif_string = "1.1.2";
