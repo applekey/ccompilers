@@ -46,10 +46,20 @@ void printDominators(vector<blockDom> *listOfDoms, char * progname)
 	printf("idominators %s %d\n",progname,domSize);
 	for(int i =0;i<domSize;i++)
 	{
-		printf("block %d ,",i);
+		printf("block %d\n",i);
 		vector<int> domin = (*listOfDoms)[i].dominators;
+		printf("\tidom ");
+
+		// int dom = domin[0];
+		// if(dom == -99)
+		// 	continue;
+		// else
+		// 	printf("%d\n",dom);
+
 		for(int j =0;j<domin.size();j++)
 		{
+			if(domin[j] == -99)
+				continue;
 			printf("%d ",domin[j]);
 		}
 		printf("\n");
@@ -117,9 +127,9 @@ bool vecContains(int element, std::vector<int> *list)
 	std::vector<int>::iterator it;
 	it = find (list->begin(), list->end(), element);
 	if(it == list->end())
-		return true;
-	else
 		return false;
+	else
+		return true;
 }
 
 vector<blockDom> calcIntermediateDomiantors(vector<blockDom> * blockdoms)
@@ -142,11 +152,24 @@ vector<blockDom> calcIntermediateDomiantors(vector<blockDom> * blockdoms)
    	  		int t = intermediateDoms[i].dominators[k];
    	  		if(vecContains(t,&(intermediateDoms[j].dominators)))
    	  		{
-   	  		  intermediateDoms[i].dominators.erase(intermediateDoms[i].dominators.begin()+k);
+   	  		  //intermediateDoms[i].dominators.erase(intermediateDoms[i].dominators.begin()+k-1);
+   	  		  intermediateDoms[i].dominators[k] = -99;
    	  		}
    	  	}
    	  }
    }
+   // remove those 99
+   // for(int i =1; i<domSize ;i++ )
+   // {
+   // 	  int dSize = intermediateDoms[i].dominators.size();
+   // 	  for(int j = dSize-1;j>=0;j--)
+   // 	  {
+   // 	  	if(intermediateDoms[i].dominators[j] == -99 )
+   // 	  	{
+   // 	  	  intermediateDoms[i].dominators.erase(intermediateDoms[i].dominators.begin()+j-1);
+   // 	  	}
+   // 	  }
+   // 	}
 
    return intermediateDoms;
 }
@@ -225,7 +248,7 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
    {
    	  printf("block %d\n",i);
    	  // print instructions
-   	  printf("\tinstrs %d: ",cfgraph[i].instructions.size());
+   	  printf("\tinstrs %d ",cfgraph[i].instructions.size());
    	  for(int j =0; j<cfgraph[i].instructions.size();j++)
    	  {
         printf("%d ",cfgraph[i].instructions[j].index);
@@ -234,7 +257,7 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
 
    	  // print successors
    	  int numberSuccessors = cfgraph[i].succ.size();
-   	  printf("\tsuccessors %d: ",numberSuccessors);
+   	  printf("\tsuccessors %d ",numberSuccessors);
    	  for(int j =0; j<numberSuccessors;j++)
    	  {
         printf("%d ",cfgraph[i].succ[j]);
@@ -243,12 +266,11 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
 
    	  // print predcessors
    	  int numberPredcessors = cfgraph[i].pred.size();
-   	  printf("\tpredecessors %d: ",numberPredcessors);
+   	  printf("\tpredecessors %d ",numberPredcessors);
    	  for(int j =0; j<numberPredcessors;j++)
    	  {
         printf("%d ",cfgraph[i].pred[j]);
    	  }
-   	  printf("\n");
    	  printf("\n");
    	  
    }
@@ -461,9 +483,9 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 	// find immediate dominators  
 	vector<blockDom> dom = calcDominators(&cfList);
-	printDominators(&dom,proc_name);
+	// printDominators(&dom,proc_name);
 
-	printf("finding itnermediate doms\n");
+	// printf("finding itnermediate doms\n");
 
 	vector<blockDom> immDoms = calcIntermediateDomiantors(&dom);
 	printDominators(&immDoms,proc_name);
