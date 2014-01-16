@@ -40,9 +40,21 @@ typedef struct blockDominator
 	vector<int> dominators;
 }blockDom;
 
-void printDominators(vector<blockDom> *dominators)
+void printDominators(vector<blockDom> *listOfDoms, char * progname)
 {
-	
+	int domSize = (*listOfDoms).size();
+	printf("idominators %s %d\n",progname,domSize);
+	for(int i =0;i<domSize;i++)
+	{
+		printf("block %d ,",i);
+		vector<int> domin = (*listOfDoms)[i].dominators;
+		for(int j =0;j<domin.size();j++)
+		{
+			printf("%d ",domin[j]);
+		}
+		printf("\n");
+		
+	}
 }
 
 
@@ -89,6 +101,17 @@ vector<int> vecIntersection(vector<int> * first, vector<int> *second)
 	return ret;
 }
 
+vector<int> vecUnion(int element, vector<int> * second)
+{
+	vector<int> vecu = *second;
+	std::vector<int>::iterator it;
+	it = find (second->begin(), second->end(), element);
+	if(it == second->end()) // element does not exist add it
+		vecu.push_back(element);
+	
+	return vecu;
+}
+
 vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
 {
 	vector<blockDom> listOfDominators;
@@ -97,7 +120,7 @@ vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
 	// initilize each dom to contain all blocks
 	blockDom entry;
 	entry.blockNumber = 0;
-	entry.dominators.push_back(0); // push back it self
+	entry.dominators.push_back(0); // push back entry
 	listOfDominators.push_back(entry);
 
 	for(int i =1;i<numBlocks;i++) // everthing except the entry
@@ -111,9 +134,10 @@ vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
 		}
 		listOfDominators.push_back(singleBlockDom);
 	}
+
 	vector<int> oldDom;
 	bool changed = true;
-	while(changed)
+	while(changed == true)
 	{
 		changed = false;
 		for(int i =1;i<numBlocks-1;i++)
@@ -123,16 +147,18 @@ vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
 			vector<int> predecessors = (*cfg)[i].pred; // get predecessors
 			// find the union of the predecessors
 			int numUnions = predecessors.size();
-			vector<int> currentUnion = (*cfg)[0].pred;
+			vector<int> currentUnion = listOfDominators[predecessors[0]].dominators
+			;
+			
 			for(int j=1;j<numUnions;j++)
 			{
 				// union these things
-				currentUnion = vecIntersection(&currentUnion,&(*cfg)[j].pred);
+				currentUnion = vecIntersection(&currentUnion,&listOfDominators[predecessors[j]].dominators);
+				
 			}
-
+			currentUnion = vecUnion(i,&currentUnion);
 			listOfDominators[i].dominators = currentUnion;
 
-			/////
 			if(!domSame(&oldDom,&currentUnion))
 			{
 				changed = true;
@@ -141,6 +167,7 @@ vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
 		}
 
 	}
+	
 	return listOfDominators;
 }
 
@@ -191,7 +218,7 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
 
 
 simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
-{
+{	
 	std::vector<cLabels> labelBlock;
 	std::vector<cLabels> gotoBlock;
 	std::vector<int> endBlocks;
@@ -395,6 +422,7 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 	// find immediate dominators  
 	vector<blockDom> dom = calcDominators(&cfList);
+	printDominators(&dom,proc_name);
     return inlist;
 }
 
