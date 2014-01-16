@@ -189,7 +189,7 @@ vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
 	entry.dominators.push_back(0); // push back entry
 	listOfDominators.push_back(entry);
 
-	for(int i =1;i<numBlocks-1;i++) // everthing except the entry and exit
+	for(int i =1;i<numBlocks;i++) // everthing except the entry and exit
 	{
 		blockDom singleBlockDom;
 		singleBlockDom.blockNumber = i;
@@ -206,7 +206,7 @@ vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
 	while(changed == true)
 	{
 		changed = false;
-		for(int i =1;i<numBlocks-1;i++)
+		for(int i =1;i<numBlocks;i++)
 		{
 			oldDom = listOfDominators[i].dominators;
 			/////
@@ -487,7 +487,7 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 	// find immediate dominators  
 	vector<blockDom> dom = calcDominators(&cfList);
-	printDominators(&dom,proc_name);
+	//printDominators(&dom,proc_name);
 
 	printf("finding itnermediate doms\n");
 
