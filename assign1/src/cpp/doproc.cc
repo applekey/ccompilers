@@ -385,16 +385,6 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 					}
 				}
 				// we were not able to find the label, thus add it to the gotolabel block
-
-				for(int iter = 0;iter<gotoBlock.size();iter++)
-				{
-					if(strcmp(gotoBlock[iter].name,labelName)==0)
-					{
-						gotoBlock[iter].blocks.push_back(blockIndex-1);	
-						break;
-					}
-				}
-				
 				int found = false;  // find gotoblock label
 				for(int iter = 0;iter<gotoBlock.size();iter++)
 				{
