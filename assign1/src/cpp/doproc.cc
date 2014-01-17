@@ -161,20 +161,6 @@ vector<blockDom> calcIntermediateDomiantors(vector<blockDom> * blockdoms)
    	  	}
    	  }
    }
-
-   // remove those 99
-   // for(int i =1; i<domSize ;i++ )
-   // {
-   // 	  int dSize = intermediateDoms[i].dominators.size();
-   // 	  for(int j = dSize-1;j>=0;j--)
-   // 	  {
-   // 	  	if(intermediateDoms[i].dominators[j] == -99 )
-   // 	  	{
-   // 	  	  intermediateDoms[i].dominators.erase(intermediateDoms[i].dominators.begin()+j-1);
-   // 	  	}
-   // 	  }
-   // 	}
-
    return intermediateDoms;
 }
 
@@ -278,6 +264,40 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
    	  printf("\n");
    	  
    }
+}
+
+vector<int> mbubblesort(vector<int> w) {
+	if(w.size() ==0)
+		return w;
+
+    int temp;
+    bool finished = false;
+    while (!finished)    {
+       finished = true;
+       for (int i = 0; i < w.size()-1; i++) {
+          if (w[i] > w[i+1]) {
+             temp = w[i];
+             w[i] = w[i+1];
+             w[i+1] = temp;
+             finished=false;
+          }
+        }
+     }
+    return w; 
+} 
+
+
+void sortLists(vector<ctrbk>* block)
+{
+
+	int count = block->size();
+	for(int i =0;i<count;i++)
+	{
+
+		(*block)[i].succ = mbubblesort((*block)[i].succ);
+		(*block)[i].pred = mbubblesort((*block)[i].pred);
+		
+	}
 }
 
 
@@ -480,6 +500,10 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 	}
     
 	cfList.push_back(endBlock);
+
+	sortLists(&cfList);
+
+
 	
 
       
@@ -488,8 +512,6 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 	// find immediate dominators  
 	vector<blockDom> dom = calcDominators(&cfList);
 	//printDominators(&dom,proc_name);
-
-	printf("finding itnermediate doms\n");
 
 	vector<blockDom> immDoms = calcIntermediateDomiantors(&dom);
 	printDominators(&immDoms,proc_name);
