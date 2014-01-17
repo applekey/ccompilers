@@ -50,11 +50,12 @@ void printDominators(vector<blockDom> *listOfDoms, char * progname)
 		vector<int> domin = (*listOfDoms)[i].dominators;
 		printf("\tidom ");
 
-		// int dom = domin[0];
-		// if(dom == -99)
-		// 	continue;
-		// else
-		// 	printf("%d\n",dom);
+		if(i ==0)
+		{
+			printf("\n");
+			continue;
+		}
+			
 
 		for(int j =0;j<domin.size();j++)
 		{
