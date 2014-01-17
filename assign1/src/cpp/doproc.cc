@@ -394,12 +394,26 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 						break;
 					}
 				}
-				// this is the first label, add it
-				cLabels newLabel;
-				newLabel.name = labelName;
-				newLabel.blocks.push_back(blockIndex-1);
 				
-				gotoBlock.push_back(newLabel);
+				int found = false;  // find gotoblock label
+				for(int iter = 0;iter<gotoBlock.size();iter++)
+				{
+					if(strcmp(gotoBlock[iter].name,labelName)==0)
+					{
+						gotoBlock[iter].blocks.push_back(blockIndex-1);	
+						found = true;
+						break;
+					}
+				}
+				if(!found)
+				{
+						// this is the first label, add it
+					cLabels newLabel;
+					newLabel.name = labelName;
+					newLabel.blocks.push_back(blockIndex-1);
+					
+					gotoBlock.push_back(newLabel);
+				}
 
 				break;
 			}
@@ -413,7 +427,66 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 			case MBR_OP: {
 				
-				printf("multibr\n");
+				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
+				cfList[blockIndex].instructions.push_back(newInst);
+				instructionIndex ++;
+
+				// create a new block
+				ctrbk newBlock;
+				cfList.push_back(newBlock);
+				blockIndex++;
+
+				
+				//set the previous block to the next
+				//set the current block to the previous
+				cfList[blockIndex-1].succ.push_back(blockIndex);
+				cfList[blockIndex].pred.push_back(blockIndex-1);
+
+				int ntargets = i->u.mbr.ntargets; // number of
+				
+				for(int n =0;n<ntargets;n++)
+				{
+						// also connect it to the branch jump to the old block
+					char * labelName = i->u.mbr.targets[n]->name;
+					// check if the label exists
+					for(int iter = 0;iter<labelBlock.size();iter++)
+					{
+						if(strcmp(labelBlock[iter].name,labelName)==0)
+						{
+							// connect the current block to the label block
+							cfList[labelBlock[iter].singleBlock].pred.push_back(blockIndex-1);
+							cfList[blockIndex-1].succ.push_back(labelBlock[iter].singleBlock);
+							//connect them up
+							break;
+						}
+					}
+					// the branch jump will be handled in the next while loop
+
+			
+					// we were not able to find the label, thus add it to the gotolabel block
+
+					int found = false;  // find gotoblock label
+					for(int iter = 0;iter<gotoBlock.size();iter++)
+					{
+						if(strcmp(gotoBlock[iter].name,labelName)==0)
+						{
+							gotoBlock[iter].blocks.push_back(blockIndex-1);	
+							found = true;
+							break;
+						}
+					}
+					if(!found)
+					{
+							// this is the first label, add it
+						cLabels newLabel;
+						newLabel.name = labelName;
+						newLabel.blocks.push_back(blockIndex-1);
+						
+						gotoBlock.push_back(newLabel);
+					}
+			
+				}
+
 				break;
 			}
 
