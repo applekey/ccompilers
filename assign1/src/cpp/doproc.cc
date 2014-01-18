@@ -48,7 +48,7 @@ void printDominators(vector<blockDom> *listOfDoms, char * progname)
 	{
 		printf("block %d\n",i);
 		vector<int> domin = (*listOfDoms)[i].dominators;
-		printf("\tidom ");
+		printf("\tidom");
 
 		if(i ==0)
 		{
@@ -61,7 +61,7 @@ void printDominators(vector<blockDom> *listOfDoms, char * progname)
 		{
 			if(domin[j] == -99)
 				continue;
-			printf("%d ",domin[j]);
+			printf(" %d",domin[j]);
 		}
 		printf("\n");
 		
@@ -239,28 +239,28 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
    {
    	  printf("block %d\n",i);
    	  // print instructions
-   	  printf("\tinstrs %d ",cfgraph[i].instructions.size());
+   	  printf("\tinstrs %d",cfgraph[i].instructions.size());
    	  for(int j =0; j<cfgraph[i].instructions.size();j++)
    	  {
-        printf("%d ",cfgraph[i].instructions[j].index);
+        printf(" %d",cfgraph[i].instructions[j].index);
    	  }
    	  printf("\n");
 
    	  // print successors
    	  int numberSuccessors = cfgraph[i].succ.size();
-   	  printf("\tsuccessors %d ",numberSuccessors);
+   	  printf("\tsuccessors %d",numberSuccessors);
    	  for(int j =0; j<numberSuccessors;j++)
    	  {
-        printf("%d ",cfgraph[i].succ[j]);
+        printf(" %d",cfgraph[i].succ[j]);
    	  }
    	  printf("\n");
 
    	  // print predcessors
    	  int numberPredcessors = cfgraph[i].pred.size();
-   	  printf("\tpredecessors %d ",numberPredcessors);
+   	  printf("\tpredecessors %d",numberPredcessors);
    	  for(int j =0; j<numberPredcessors;j++)
    	  {
-        printf("%d ",cfgraph[i].pred[j]);
+        printf(" %d",cfgraph[i].pred[j]);
    	  }
    	  printf("\n");
    	  
