@@ -13,12 +13,12 @@ block 2
 	predecessors 1 1
 block 3
 	instrs 1 7
-	successors 7 4 5 6 7 8 9 10
+	successors 7 5 6 7 8 9 10 11
 	predecessors 1 2
 block 4
 	instrs 2 8 9
 	successors 1 11
-	predecessors 3 1 2 3
+	predecessors 2 1 2
 block 5
 	instrs 4 10 11 12 13
 	successors 1 12
@@ -46,7 +46,7 @@ block 10
 block 11
 	instrs 4 34 35 36 37
 	successors 1 12
-	predecessors 1 4
+	predecessors 2 3 4
 block 12
 	instrs 8 38 39 40 41 42 43 44 45
 	successors 2 13 14
@@ -111,7 +111,7 @@ block 9
 block 10
 	idom 3
 block 11
-	idom 4
+	idom 1
 block 12
 	idom 1
 block 13

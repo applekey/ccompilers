@@ -426,18 +426,20 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 				cfList.push_back(newBlock);
 				blockIndex++;
 
-				
-				//set the previous block to the next
-				//set the current block to the previous
-				cfList[blockIndex-1].succ.push_back(blockIndex);
-				cfList[blockIndex].pred.push_back(blockIndex-1);
-
+			    // the default target
 				int ntargets = i->u.mbr.ntargets; // number of
 				
-				for(int n =0;n<ntargets;n++)
+				for(int n =0;n<ntargets+1;n++)
 				{
-						// also connect it to the branch jump to the old block
-					char * labelName = i->u.mbr.targets[n]->name;
+						char * labelName;
+					if(n == ntargets) // default target
+					{
+						labelName =  i->u.mbr.deflab->name;
+					}
+					else  // other gargets
+					{
+						 labelName= i->u.mbr.targets[n]->name;
+					}
 					// check if the label exists
 					for(int iter = 0;iter<labelBlock.size();iter++)
 					{
