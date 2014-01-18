@@ -29,6 +29,7 @@ ref5 = ' assign1Ref t5.tmp > r5.out'
 ref6 = ' assign1Ref t6.tmp > r6.out'
 ref7 = ' assign1Ref t7.tmp > r7.out'
 
+
 h1 = ' hw1 t1.tmp > h1.out'
 h2 = ' hw1 t2.tmp > h2.out'
 h3 = ' hw1 t3.tmp > h3.out'
@@ -44,6 +45,11 @@ d4 = 'diff r4.out h4.out'
 d5 = 'diff r5.out h5.out'
 d6 = 'diff r6.out h6.out'
 d7 = 'diff r7.out h7.out'
+
+ref8 = 'assign1Ref foo.tmp > r8.out'
+h8 = ' hw1 foo.tmp > h8.out'
+d7 = 'diff r8.out h8.out'
+
 
 def runChecks():
 	print 'running programs'
@@ -63,6 +69,9 @@ def runChecks():
 	command(ref5)
 	command(ref6)
 	command(ref7)
+	#custom
+	command(h8)
+	command(ref8)
 
 def runDiff():
 	print 'diffing'
@@ -83,6 +92,9 @@ def runDiff():
 	print output
 
 	output = command(d7)
+	print output
+
+	output = command(d8)
 	print output
 
 runChecks();
