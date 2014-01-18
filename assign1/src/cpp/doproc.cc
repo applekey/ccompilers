@@ -267,24 +267,24 @@ void printcfg(std::vector< ctrbk > *cfg, char* procedureName)
    }
 }
 
-vector<int> mbubblesort(vector<int> w) {
-	if(w.size() ==0)
-		return w;
+void mbubblesort(vector<int> *w) {
+	if(w->size() ==0)
+		return ;
 
     int temp;
     bool finished = false;
     while (!finished)    {
        finished = true;
-       for (int i = 0; i < w.size()-1; i++) {
-          if (w[i] > w[i+1]) {
-             temp = w[i];
-             w[i] = w[i+1];
-             w[i+1] = temp;
+       for (int i = 0; i < w->size()-1; i++) {
+          if ((*w)[i] > (*w)[i+1]) {
+             temp = (*w)[i];
+             (*w)[i] = (*w)[i+1];
+             (*w)[i+1] = temp;
              finished=false;
           }
         }
      }
-    return w; 
+    return ; 
 } 
 
 
@@ -295,8 +295,8 @@ void sortLists(vector<ctrbk>* block)
 	for(int i =0;i<count;i++)
 	{
 
-		(*block)[i].succ = mbubblesort((*block)[i].succ);
-		(*block)[i].pred = mbubblesort((*block)[i].pred);
+		mbubblesort(&((*block)[i].succ));
+		mbubblesort(&((*block)[i].pred));
 		
 	}
 }
