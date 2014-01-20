@@ -327,6 +327,8 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 	cfList.push_back(newBlock);
 	// initilize the label tab
+
+	bool retCalled = false;
 	
 	bool nextStatementNewBlock = false;
 	while(i){
@@ -499,9 +501,17 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 					//set the previous block to the next
 					//set the current block to the previous
+					if(!retCalled)
+					{
+						cfList[blockIndex-1].succ.push_back(blockIndex);
+						cfList[blockIndex].pred.push_back(blockIndex-1);
+						
+					}
+					else
+					{
+						retCalled = false;
+					}
 					
-					cfList[blockIndex-1].succ.push_back(blockIndex);
-					cfList[blockIndex].pred.push_back(blockIndex-1);
 			    }
 
 			
@@ -539,6 +549,8 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 				instr newInst ={instructionIndex,simple_op_name(i->opcode)};
 				cfList[blockIndex].instructions.push_back(newInst);
 				instructionIndex ++;
+
+				retCalled = true;
 
 				endBlocks.push_back(blockIndex);
 				break;
