@@ -200,9 +200,12 @@ vector<blockDom> calcDominators(std::vector< ctrbk > *cfg)
 			vector<int> predecessors = (*cfg)[i].pred; // get predecessors
 			// find the union of the predecessors
 			int numUnions = predecessors.size();
-			vector<int> currentUnion = listOfDominators[predecessors[0]].dominators
-			;
-			
+			vector<int> currentUnion;
+			if(numUnions != 0)
+			{
+				currentUnion = listOfDominators[predecessors[0]].dominators;
+			}
+		
 			for(int j=1;j<numUnions;j++)
 			{
 				// union these things
