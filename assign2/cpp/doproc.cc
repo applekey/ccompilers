@@ -320,27 +320,33 @@ typedef struct possibleheaderTail
 
 }possiblehT;
 
-vector<int> explored;
-vector<possiblehT> possibleLoops;
 
-void loopDfs(ctrbk* block,vector<ctrbk>* cfList, vector<blockDom> * dominators, int currentBlock)
+
+
+void loopDfs(ctrbk* block,vector<ctrbk>* cfList, vector<blockDom> * doms
+	,int currentBlock,vector<int>* explored,vector<possiblehT>* possibleLoops)
 {
 	int numSucc = block ->succ.size();
 	for(int i =0;i<numSucc;i++)
 	{
 		int succBlock = block ->succ[i];
-		if(vecContains(succBlock,&explored))
+		if(vecContains(succBlock,explored))
 		{
 			// also have to check domination
-
-			possiblehT ploop;
-			ploop.head = succBlock;
-			ploop.tail = currentBlock;
-			possibleLoops.push_back(ploop);
+			vector<int> *currentblockDominators = &((*doms)[currentBlock].dominators);
+		   
+			if(vecContains(succBlock,currentblockDominators))
+			{
+				possiblehT ploop;
+				ploop.head = succBlock;
+				ploop.tail = currentBlock;
+				possibleLoops->push_back(ploop);
+			}
 		}
 		else
 		{
-			loopDfs(&((*cfList)[succBlock]),cfList,dominators,succBlock);
+			explored->push_back(currentBlock);
+			loopDfs(&((*cfList)[succBlock]),cfList,doms,succBlock,explored,possibleLoops);
 		}
 	}
 }
@@ -349,20 +355,22 @@ void loopDfs(ctrbk* block,vector<ctrbk>* cfList, vector<blockDom> * dominators, 
 
 vector<loopArray> findLoops(vector<ctrbk>* cfList,vector<blockDom> * dominators)
 {
-	int numBlocks = dominators->size();
-	// iterate through each dominator
-	for(int i =0;i<numBlocks;i ++)
-	{
-		// look at the block dominators
-		int numDominators = (*dominators)[i].dominators.size();
-		for(int j = 0;j<numDominators;j++)
-		{
-			if((*dominators)[i].dominators[j]>i)
-			{
+	vector<loopArray> loops;
+	vector<int> explored;
+	vector<possiblehT> possibleLoops;
+	loopDfs(&((*cfList)[0]),cfList,dominators,0,&explored,&possibleLoops);
 
-			}
-		}
+	// debug stage print out the loops
+	printf("possible loops\n");
+	int n = possibleLoops.size();
+	for(int i =0;i<n;i++)
+	{
+		printf("%d %d \n",possibleLoops[i].head,possibleLoops[i].tail);
+		printf("\n");
 	}
+
+
+	return loops;
 } 
 
 
@@ -647,10 +655,6 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 	sortLists(&cfList);
 
-
-	
-
-      
 	printcfg(&cfList,proc_name);
 
 	// find immediate dominators  
@@ -659,6 +663,9 @@ simple_instr* do_procedure (simple_instr *inlist, char *proc_name)
 
 	vector<blockDom> immDoms = calcIntermediateDomiantors(&dom);
 	printDominators(&immDoms,proc_name);
+
+	// lab 2 stuff
+	findLoops(&cfList,&dom);
 
     return inlist;
 }
